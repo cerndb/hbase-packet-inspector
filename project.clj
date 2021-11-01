@@ -16,7 +16,7 @@
                  [org.pcap4j/pcap4j-packetfactory-static "1.8.2"]
                  [com.google.guava/guava "31.0.1-jre"]
                  [com.google.protobuf/protobuf-java "2.6.1"] ; Issues with v3
-                 [com.h2database/h2 "1.4.197"] ; v1.4.198: 1 error
+                 [com.h2database/h2 "1.4.197"] ; v1.4.198: 1 error -> reserved keyworkd escaping?
                  [org.apache.kafka/kafka-clients "3.0.0"]
                  [cheshire "5.10.0"]
                  [com.cemerick/url "0.1.1"]
