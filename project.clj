@@ -10,8 +10,8 @@
                  [org.clojure/java.jdbc "0.7.12"]
                  [org.slf4j/slf4j-api "1.7.32"]
                  [org.slf4j/slf4j-log4j12 "1.7.32"]
-                 [org.apache.hbase/hbase-client "1.2.6"]
-                 ;[org.apache.hbase/hbase-client "2.4.7"] ; warnings and suggestions
+                 [org.apache.hbase/hbase-client "2.4.7"
+                  :exclusions [net.minidev/json-smart]]
                  [org.pcap4j/pcap4j-core "1.8.2"]
                  [org.pcap4j/pcap4j-packetfactory-static "1.8.2"]
                  [com.google.guava/guava "31.0.1-jre"]
