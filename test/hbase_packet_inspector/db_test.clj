@@ -22,12 +22,12 @@
     (let [load (db/load-fn connection)]
       (load {:client :foo
              :port 1000
-             :row nil
+             :hrow nil
              :inbound? true
              :actions [{:client :bar} {:client :baz}]})
       (load {:client :FOO
              :port 2000
-             :row "row"
+             :hrow "row"
              :inbound? false
              :results [{:client :BAR} {:client :BAZ}]}))
 
@@ -35,9 +35,9 @@
                           [table (q (str "select * from " (name table)))]))]
       (is (= #{"foo"}       (set (map :client (:requests rows)))))
       (is (= #{1000}        (set (map :port (:requests rows)))))
-      (is (= #{nil}         (set (map :row (:requests rows)))))
+      (is (= #{nil}         (set (map :hrow (:requests rows)))))
       (is (= #{"bar" "baz"} (set (map :client (:actions rows)))))
       (is (= #{"FOO"}       (set (map :client (:responses rows)))))
       (is (= #{2000}        (set (map :port (:responses rows)))))
-      (is (= #{"row"}       (set (map :row (:responses rows)))))
+      (is (= #{"row"}       (set (map :hrow (:responses rows)))))
       (is (= #{"BAR" "BAZ"} (set (map :client (:results rows))))))))
