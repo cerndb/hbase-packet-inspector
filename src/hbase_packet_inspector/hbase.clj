@@ -104,7 +104,7 @@
   (let [as-bytes (-> name .asReadOnlyByteBuffer Bytes/getBytes)
         table    (Bytes/toStringBinary ^bytes (first (HRegionInfo/parseRegionName as-bytes)))
         encoded  (HRegionInfo/encodeRegionName as-bytes)]
-    {:table  table
+    {:htable  table
      :region encoded}))
 
 (defn parse-get-request
@@ -115,7 +115,7 @@
         all-qualifiers (reduce + (for [^ClientProtos$Column family families]
                                    (.. family getQualifierCount)))]
     (assoc (parse-region-name (.. request getRegion getValue))
-           :row (->string-binary (.. get getRow))
+           :hrow (->string-binary (.. get getRow))
            :cells all-qualifiers)))
 
 (defn parse-scan-request
@@ -140,7 +140,7 @@
            (when (#{:open-scanner :small-scan} method)
              (merge (parse-region-name (.. request getRegion getValue))
                     {:caching (.. scan getCaching)
-                     :row     (->string-binary (.. scan getStartRow))
+                     :hrow     (->string-binary (.. scan getStartRow))
                      :stoprow (->string-binary (.. scan getStopRow))})))))
 
 (defn- ->keyword*
@@ -171,7 +171,7 @@
     {:method     (if condition?
                    (keyword (str "check-and-" (name method)))
                    method)
-     :row        (->string-binary (.. mutation getRow))
+     :hrow        (->string-binary (.. mutation getRow))
      :cells      (+ (.. mutation getAssociatedCellCount)
                     (reduce + (map #(.getQualifierValueCount ^ClientProtos$MutationProto$ColumnValue %)
                                    (.. mutation getColumnValueList))))
@@ -196,7 +196,7 @@
       (merge
        (if (.hasGet action)
          {:method :get
-          :row    (->string-binary (.. action getGet getRow))}
+          :hrow    (->string-binary (.. action getGet getRow))}
          (parse-mutation (.. action getMutation) condition?))
        region))))
 
@@ -235,8 +235,8 @@
          :multi
          (let [request (ClientProtos$MultiRequest/parseDelimitedFrom bais)
                actions (parse-multi-request request)
-               table   (some-> (filter :table actions) first :table)]
-           {:table   table
+               table   (some-> (filter :htable actions) first :htable)]
+           {:htable   table
             :actions actions})
 
          :bulk-load-hfile

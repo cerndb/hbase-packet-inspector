@@ -1,4 +1,4 @@
-(defproject hbase-packet-inspector "0.3.0"
+(defproject hbase-packet-inspector "0.4.0"
   :description "A command-line tool for analyzing network traffic of HBase RegionServers"
   :url "http://github.com/kakao/hbase-packet-inspector"
   :license {:name "Apache License 2.0"}

@@ -43,7 +43,7 @@
           (ByteString/copyFrom (byte-array (range 91 130)))))))
 
 (deftest test-parse-region-name
-  (is (= {:table "tablename" :region "<...encoded-name-in-32-bytes...>"}
+  (is (= {:htable "tablename" :region "<...encoded-name-in-32-bytes...>"}
          (hbase/parse-region-name
           (ByteString/copyFromUtf8
            "tablename,startkey,timestamp.<...encoded-name-in-32-bytes...>.")))))
@@ -269,9 +269,9 @@
   (testing "get"
     (is (= {:method  :get
             :call-id 100
-            :table   table-name
+            :htable   table-name
             :region  encoded-name
-            :row     "rowkey"
+            :hrow     "rowkey"
             :cells   6}
            (parse-request "GET" 100 (make-get-request)))))
 
@@ -279,10 +279,10 @@
     (is (= {:method  :open-scanner
             :call-id 100
             :scanner 0
-            :table   table-name
+            :htable   table-name
             :region  encoded-name
             :caching 1000
-            :row     "start"
+            :hrow     "start"
             :stoprow "stop"}
            (parse-request "SCAN" 100 (make-scan-request nil false 1000)))))
 
@@ -296,10 +296,10 @@
     (is (= {:method  :small-scan
             :call-id 100
             :scanner 0
-            :table   table-name
+            :htable   table-name
             :region  encoded-name
             :caching 1000
-            :row     "start"
+            :hrow     "start"
             :stoprow "stop"}
            (parse-request "SCAN" 100 (make-scan-request nil true 1000)))))
 
@@ -312,49 +312,49 @@
   (testing "put"
     (is (= {:method :put
             :call-id 100
-            :row "rowkey"
+            :hrow "rowkey"
             :cells 13
             :durability :use_default
-            :table   table-name
+            :htable   table-name
             :region  encoded-name}
            (parse-request "MUTATE" 100 (make-mutate-request "PUT" false)))))
 
   (testing "check-and-delete"
     (is (= {:method :check-and-delete
             :call-id 100
-            :row "rowkey"
+            :hrow "rowkey"
             :cells 13
             :durability :use_default
-            :table   table-name
+            :htable   table-name
             :region  encoded-name}
            (parse-request "MUTATE" 100 (make-mutate-request "DELETE" true)))))
 
   (testing "multi"
     (is (= {:method :multi
             :call-id 100
-            :table "<tablename>"
+            :htable "<tablename>"
             :actions [{:method :get
-                       :row "rowkey"
-                       :table "<tablename>"
+                       :hrow "rowkey"
+                       :htable "<tablename>"
                        :region "1505983556"}
                       {:method :put
-                       :row "rowkey"
+                       :hrow "rowkey"
                        :cells 13
                        :durability :use_default
-                       :table "<tablename>"
+                       :htable "<tablename>"
                        :region "1505983556"}
                       {:method :delete
-                       :row "rowkey"
+                       :hrow "rowkey"
                        :cells 13
                        :durability :use_default
-                       :table "<tablename>"
+                       :htable "<tablename>"
                        :region "1505983556"}]}
            (parse-request "MULTI" 100 (make-multi-request)))))
 
   (testing "bulk-load-hfile"
     (is (= {:method :bulk-load-hfile
             :call-id 100
-            :table   table-name
+            :htable   table-name
             :region  encoded-name}
            (parse-request "BulkLoadHfile" 100
                           (.. (ClientProtos$BulkLoadHFileRequest/newBuilder)
@@ -372,9 +372,9 @@
   (testing "hbase/parse-stream"
     (is (= {:method :get
             :call-id 100
-            :table table-name
+            :htable table-name
             :region encoded-name
-            :row "rowkey"
+            :hrow "rowkey"
             :cells 6}
            (hbase/parse-stream true (->bais (make-request-header "GET" 100)
                                             (make-get-request)) nil)))
@@ -391,9 +391,9 @@
     ;; Basically does the same, but takes additional total-size argument
     (is (= {:method :get
             :call-id 100
-            :table table-name
+            :htable table-name
             :region encoded-name
-            :row "rowkey"
+            :hrow "rowkey"
             :cells 6
             :size 9999}
            (core/parse-stream true (->bais (make-request-header "GET" 100)

@@ -45,7 +45,7 @@
                   :inbound? true
                   :call-id  100
                   :ts       2016
-                  :table    "foo"
+                  :htable    "foo"
                   :region   "bar"}
         [state1  _] (process state0 client open-req)
 
@@ -74,7 +74,7 @@
 
         small-scan-req {:method   :small-scan
                         :call-id  200
-                        :table    "foo"
+                        :htable    "foo"
                         :region   "bar"
                         :inbound? true}
         [state6 small-scan-req*] (process state5 client small-scan-req)
@@ -97,8 +97,8 @@
 
     ;; The response and request are augmented with the initial open-scanner
     ;; request.
-    (is (every? next-req* [:region :table]))
-    (is (every? next-res* [:region :table]))
+    (is (every? next-req* [:region :htable]))
+    (is (every? next-res* [:region :htable]))
 
     ;; next-rows only updates :ts
     (is (= 2016 (-> state2 first val :ts)))
@@ -113,7 +113,7 @@
     ;; Small scan state
     (is (= 1 (count state6)))
     (is (contains? state6 ["host" 1234 200 :scanner]))
-    (is (= "foo" (-> state6 vals first :table)))
+    (is (= "foo" (-> state6 vals first :htable)))
     (is (= "bar" (-> state6 vals first :region)))
 
     ;; state is cleaned up after small-scan response
@@ -257,7 +257,7 @@
 
 (comment
   (doseq [info (read-fixture :checkAndMutate)
-          :when (= test-table (:table info))]
+          :when (= test-table (:htable info))]
     (println info)))
 
 (def test-table "TestTable")
@@ -271,8 +271,8 @@
     (let [infos (read-fixture :sequentialWrite)
           multi (first (filter (every-pred :inbound? #(-> % :method (= :multi))) infos))
           multi-call-id (:call-id multi)
-          {:keys [table batch size actions]} multi]
-      (is (= test-table table))
+          {:keys [htable batch size actions]} multi]
+      (is (= test-table htable))
       (is (> size (* record-size record-count)))
       (is (= record-count batch))
       (doseq [action actions
@@ -294,15 +294,15 @@
         (is (= batch-get-size (count results)))
         (is (> size (* record-size batch)))
         (doseq [result results
-                :let [{:keys [method row region table cells]} result]]
+                :let [{:keys [method hrow region htable cells]} result]]
           (is (= :get method))
           (is (= 1 cells))
-          (is (every? identity [row region table]))))))
+          (is (every? identity [hrow region htable]))))))
 
   (testing "scan"
     (let [infos (read-fixture :scan)
           nexts (filter (every-pred (complement :inbound?)
-                                    #(-> % :table (= test-table))
+                                    #(-> % :htable (= test-table))
                                     #(-> % :method (= :next-rows))) infos)]
       (is (= (quot record-count caching-size) (count nexts)))
       (apply = (map :scanner nexts))
@@ -319,7 +319,7 @@
     (let [infos (read-fixture :smallScan)]
       (is (= 200
              (->> infos
-                  (filter #(-> % ((juxt :table :method)) (= ["t" :small-scan])))
+                  (filter #(-> % ((juxt :htable :method)) (= ["t" :small-scan])))
                   (remove :inbound?)
                   (map :cells)
                   (reduce +))))))

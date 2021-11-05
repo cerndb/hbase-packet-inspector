@@ -106,7 +106,7 @@ Options:
   (let [{:keys [method inbound? call-id scanner ts]} parsed
         prefix (conj client-key call-id)
         scanner-state (state scanner)
-        region-info (select-keys scanner-state [:table :region])]
+        region-info (select-keys scanner-state [:htable :region])]
     (match [method inbound?]
 
       ;; 1. Remember Scan request for call-id
